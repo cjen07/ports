@@ -1,14 +1,6 @@
-%% ---
-%%  Excerpted from "Programming Erlang, Second Edition",
-%%  published by The Pragmatic Bookshelf.
-%%  Copyrights apply to this code. It may not be used to create training material, 
-%%  courses, books, articles, and the like. Contact us if you are in doubt.
-%%  We make no guarantees that this code is fit for any purpose. 
-%%  Visit http://www.pragmaticprogrammer.com/titles/jaerlang2 for more book information.
-%%---
 -module(example1).
 -export([start/0, stop/0]).
--export([twice/1, sum/2, sum_list/1, float/1, sum_list2/1]).
+-export([sum_list/1, mul_matrix/2]).
 
 start() ->
     register(example1, 
@@ -21,11 +13,9 @@ start() ->
 stop() ->
     ?MODULE ! stop.
 
-twice(X) -> call_port({twice, X}).
-sum(X,Y) -> call_port({sum, X, Y}).
+
 sum_list(L) -> call_port({sum_list, L}).
-float(X) -> call_port({float, X}).
-sum_list2(L) -> call_port({sum_list2, L}).
+mul_matrix(A, B) -> call_port({mul_matrix, A, B}).
 
 call_port(Msg) ->
     ?MODULE ! {call, self(), Msg},
@@ -53,12 +43,27 @@ loop(Port) ->
 	    exit({port_terminated, Reason})
     end.
 	
-encode({sum, X, Y}) -> [1, X, Y];
-encode({twice, X})  -> [2, X];
-encode({sum_list, L}) -> [3, length(L)] ++ L;
-encode({float, X}) -> [4] ++ binary:bin_to_list(<<X:64/float>>);
-encode({sum_list2, L}) -> [5, length(L)] ++ lists:foldl(fun(X, Acc) -> Acc ++ lists:reverse(binary:bin_to_list(<<X:64/float>>)) end, [], L).
+encode({sum_list, L}) -> [1, length(L)] ++ lists:foldl(fun(X, Acc) -> Acc ++ lists:reverse(binary:bin_to_list(<<X:64/float>>)) end, [], L);
+encode({mul_matrix, A, B}) ->
+  M = length(A),
+  K = length(B),
+  A0 = lists:nth(1, A),
+  B0 = lists:nth(1, B),
+  K = length(A0),
+  N = length(B0),
+  [2, M, K, N] ++ lists:foldl(fun(X, Acc) -> Acc ++ lists:reverse(binary:bin_to_list(<<X:64/float>>)) end, [], lists:flatten(A) ++ lists:flatten(B)).
 
 decode([Int]) -> Int;
-decode(L) -> <<X:64/float>> = binary:list_to_bin(lists:reverse(L)),
-             X.
+decode([1|L]) -> <<X:64/float>> = binary:list_to_bin(lists:reverse(L)),
+  X;
+decode([2|L]) -> 
+  [_|[N|T]] = L,
+  C1 = unflatten(8, T, []),
+  C2 = lists:map(fun(X) -> <<Y:64/float>> = binary:list_to_bin(lists:reverse(X)), Y end, C1),
+  unflatten(N, C2, []).
+
+unflatten(_, [], L) -> L;
+unflatten(N, L1, L2) -> 
+  {L3, L4} = lists:split(N, L1),
+  unflatten(N, L4, L2 ++ [L3]).
+
