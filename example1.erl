@@ -8,7 +8,7 @@
 %%---
 -module(example1).
 -export([start/0, stop/0]).
--export([twice/1, sum/2]).
+-export([twice/1, sum/2, sum_list/1, float/1, sum_list2/1]).
 
 start() ->
     register(example1, 
@@ -20,8 +20,13 @@ start() ->
 
 stop() ->
     ?MODULE ! stop.
+
 twice(X) -> call_port({twice, X}).
 sum(X,Y) -> call_port({sum, X, Y}).
+sum_list(L) -> call_port({sum_list, L}).
+float(X) -> call_port({float, X}).
+sum_list2(L) -> call_port({sum_list2, L}).
+
 call_port(Msg) ->
     ?MODULE ! {call, self(), Msg},
     receive
@@ -49,6 +54,11 @@ loop(Port) ->
     end.
 	
 encode({sum, X, Y}) -> [1, X, Y];
-encode({twice, X})  -> [2, X].
+encode({twice, X})  -> [2, X];
+encode({sum_list, L}) -> [3, length(L)] ++ L;
+encode({float, X}) -> [4] ++ binary:bin_to_list(<<X:64/float>>);
+encode({sum_list2, L}) -> [5, length(L)] ++ lists:foldl(fun(X, Acc) -> Acc ++ lists:reverse(binary:bin_to_list(<<X:64/float>>)) end, [], L).
 
-decode([Int]) -> Int.
+decode([Int]) -> Int;
+decode(L) -> <<X:64/float>> = binary:list_to_bin(lists:reverse(L)),
+             X.

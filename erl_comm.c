@@ -23,7 +23,7 @@ int read_cmd(byte *buf)
   if (read_exact(buf, 2) != 2)
     return(-1);
   len = (buf[0] << 8) | buf[1];
-  fprintf(stderr,"buff is %d %d\n",buf[0],buf[1]); 
+  // fprintf(stderr,"buff is %d %d\n\r",buf[0],buf[1]); 
   return read_exact(buf, len);
 }
 int write_cmd(byte *buf, int len)
