@@ -5,7 +5,7 @@
     1> c(example1).
     2> example1:start().
     3> example1:sum_list([1.2,3.4,-2,1]).
-    4> example1:mul_matrix([[1.2,3.1],[-0.5,2.7]], [[1,7,-2.5],[1.5,4.8]).
+    4> example1:mul_matrix([[1.2,3.1],[-0.5,2.7]], [[1,7,-2.5],[1.5,4.8]]).
 ## logs
 - 11.22 success with sending doubles and recieving a double
 - 11.22 success with sending two matrix and getting the multiplication
