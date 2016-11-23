@@ -9,3 +9,5 @@
 ## logs
 - 11.22 success with sending doubles and recieving a double
 - 11.22 success with sending two matrix and getting the multiplication
+- 11.23 success with adjustment from packet:2 to packet: 4 with buf[8000000]
+- 11.23 failure with endless sending time of large matrix muliplication (1389*256)
