@@ -3,8 +3,8 @@
 #include <string.h>
 typedef unsigned char byte;
 
-int read_cmd(byte *buff);
-int write_cmd(byte *buff, int len);
+long read_cmd(byte *buff);
+long write_cmd(byte *buff, long len);
 double sum_list(double arr[], int size);
 double* mul(int m, int k, int n, double *A, double *B);
 
@@ -15,7 +15,7 @@ union Data {
 
 int main() {
   int fn, arg1, arg2, result;
-  byte buff[1000];
+  byte buff[8000000];
 
   while (read_cmd(buff) > 0) {
     fn = buff[0];

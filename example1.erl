@@ -6,13 +6,12 @@ start() ->
     register(example1, 
 	     spawn(fun() ->
 		     process_flag(trap_exit, true),
-		     Port = open_port({spawn, "./example1"}, [{packet, 2}]),
+		     Port = open_port({spawn, "./example1"}, [{packet, 4}]),
 		     loop(Port)
 		   end)).
 
 stop() ->
     ?MODULE ! stop.
-
 
 sum_list(L) -> call_port({sum_list, L}).
 mul_matrix(A, B) -> call_port({mul_matrix, A, B}).
